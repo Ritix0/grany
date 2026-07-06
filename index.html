@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ГРАНЬ — Интерьерный Дзен-Конструктор</title>
+    <!-- Премиальный шрифтовой дуэт: геометрический Outfit для заголовков и моноширинный JetBrains Mono для чертежных данных -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        grany: {
+                            bg: '#F5F2EB',       // Теплый песочно-льняной (под текстуру картона)
+                            card: '#FFFFFF',     // Чистый белый для контрастных плашек
+                            border: '#D8D2C4',   // Граница печатной формы
+                            text: '#1C1A19',     // Глубокий графит (замена чистому черному)
+                            muted: '#7E7570',    // Цвет сухой глины
+                            accent: '#C85A32',   // Обожженная терракота
+                            accentMuted: '#F1EAE1',
+                            gridLine: '#E8E2D5'  // Линии чертежной сетки
+                        }
+                    },
+                    transitionTimingFunction: {
+                        'premium': 'cubic-bezier(0.16, 1, 0.3, 1)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Чертёжная сетка на фоне страницы для создания полиграфического стиля */
+        .blueprint-bg {
+            background-color: #F5F2EB;
+            background-image: 
+                linear-gradient(to right, #E8E2D5 1px, transparent 1px),
+                linear-gradient(to bottom, #E8E2D5 1px, transparent 1px);
+            background-size: 24px 24px;
+        }
+        /* Кастомный скроллбар */
+        ::-webkit-scrollbar {
+            width: 5px;
+            height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F5F2EB;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #D8D2C4;
+            border-radius: 4px;
+        }
+        #canvas-container canvas {
+            touch-action: none;
+            display: block;
+        }
+    </style>
+    <!-- Three.js и OrbitControls -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+</head>
+<body class="blueprint-bg text-grany-text font-sans antialiased selection:bg-grany-accent selection:text-white min-h-[100dvh] flex flex-col overflow-x-hidden relative">
+
+    <!-- ШАПКА САЙТА -->
+    <header class="border-b border-grany-border bg-grany-bg/90 backdrop-blur-md sticky top-0 z-40 px-6 py-4">
+        <div class="max-w-[1400px] mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-4">
+                <!-- Минималистичный логотип-чертеж -->
+                <svg class="w-7 h-7 text-grany-text" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" class="stroke-grany-accent" />
+                    <line x1="3" y1="3" x2="21" y2="21" stroke-dasharray="2 2" />
+                    <circle cx="12" cy="12" r="3" class="fill-grany-bg stroke-grany-text" />
+                </svg>
+                <div class="flex flex-col">
+                    <span class="text-lg font-bold tracking-tighter uppercase leading-none">ГРАНЬ</span>
+                    <span class="text-[9px] font-mono tracking-widest text-grany-muted uppercase mt-0.5">модульная архитектура</span>
+                </div>
+            </div>
+            <nav class="hidden md:flex space-x-8 text-xs font-bold tracking-wider uppercase text-grany-muted">
+                <a href="#about" class="hover:text-grany-text transition-colors duration-200">Концепция</a>
+                <a href="#lashing" class="hover:text-grany-text transition-colors duration-200">Вязка узлов</a>
+                <a href="#workshop" class="text-grany-accent hover:text-grany-accent/80 transition-colors duration-200">3D Чертежи</a>
+                <a href="#pricing" class="hover:text-grany-text transition-colors duration-200">Заказать</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="flex-grow">
+        
+        <!-- PROMO HERO SECTION -->
+        <section id="about" class="py-16 px-6 max-w-[1400px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative">
+            <div class="lg:col-span-7 space-y-6">
+                <div class="inline-flex items-center space-x-2 px-3 py-1 rounded-full bg-grany-accentMuted border border-grany-border text-grany-accent text-[10px] font-bold uppercase tracking-wider">
+                    <span class="w-1.5 h-1.5 rounded-full bg-grany-accent"></span>
+                    <span>Премиальный интерьерный гаджет</span>
+                </div>
+                <h1 class="text-5xl md:text-7xl font-bold tracking-tighter leading-none text-grany-text">
+                    Минимум деталей.<br><span class="text-grany-accent">Бесконечность форм.</span>
+                </h1>
+                <p class="text-base text-grany-muted leading-relaxed max-w-[60ch]">
+                    «ГРАНЬ» — это взрослый архитектурный constructor, основанный на законах физики и математического баланса. Вы создаёте живую самонесущую систему из шлифованного бамбука и эластичного силикона. Никакого клея. Никакого пластика. Только чистое тактильное созидание.
+                </p>
+                <div class="flex flex-wrap gap-4 pt-4">
+                    <a href="#workshop" class="bg-grany-text hover:bg-grany-accent text-grany-bg text-xs font-bold tracking-wider uppercase px-8 py-4 rounded-xl transition-all duration-300 transform active:scale-[0.98] shadow-sm">
+                        3D Конструктор
+                    </a>
+                    <a href="#lashing" class="border border-grany-border hover:border-grany-text bg-grany-card text-xs font-bold tracking-wider uppercase px-8 py-4 rounded-xl transition-all duration-300">
+                        Изучить узлы
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Промо-коллаж в стиле Japandi -->
+            <div class="lg:col-span-5 grid grid-cols-2 gap-4">
+                <div class="bg-grany-card p-8 rounded-3xl border border-grany-border flex flex-col justify-between aspect-square relative overflow-hidden group hover:border-grany-accent transition-colors duration-300">
+                    <div class="absolute top-0 right-0 w-16 h-16 border-b border-l border-grany-border pointer-events-none"></div>
+                    <span class="font-mono text-xs text-grany-accent font-bold">STRESS_RELIEF // 01</span>
+                    <div class="space-y-2">
+                        <h3 class="font-bold text-lg leading-tight">Тактильная терапия</h3>
+                        <p class="text-[11px] text-grany-muted leading-relaxed">Контраст теплой текстуры дерева и матового силикона заземляет разум и развивает мелкую моторику.</p>
+                    </div>
+                </div>
+                <div class="bg-grany-card p-8 rounded-3xl border border-grany-border flex flex-col justify-between aspect-square relative overflow-hidden mt-8 lg:mt-12 group hover:border-grany-accent transition-colors duration-300">
+                    <div class="absolute top-0 right-0 w-16 h-16 border-b border-l border-grany-border pointer-events-none"></div>
+                    <span class="font-mono text-xs text-grany-accent font-bold">VARIABILITY // 02</span>
+                    <div class="space-y-2">
+                        <h3 class="font-bold text-lg leading-tight">Подвижное искусство</h3>
+                        <p class="text-[11px] text-grany-muted leading-relaxed">Конструкция не статична. Сегодня это подставка под кофе, завтра — геометрический мобиль под потолком.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- РАЗДЕЛ: ВЯЗКА УЗЛОВ И ФИКСАЦИЯ МУФТ -->
+        <section id="lashing" class="py-16 bg-grany-card border-y border-grany-border px-6 relative">
+            <div class="max-w-[1400px] mx-auto">
+                <div class="max-w-3xl mb-12 space-y-3">
+                    <span class="font-mono text-xs font-bold text-grany-accent uppercase tracking-wider">Инженерный регламент</span>
+                    <h2 class="text-3xl md:text-4xl font-bold tracking-tight uppercase">Инструкция по фиксации и вязке узлов</h2>
+                    <p class="text-sm text-grany-muted leading-relaxed max-w-[70ch]">
+                        Прочность и жесткость каркаса «ГРАНЬ» зависят от правильного натяжения силиконовых муфт. Муфта работает за счет силы трения и плотного обхвата бамбука. Ниже приведены базовые физические узлы, используемые во всех схемах сборки.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    
+                    <!-- Узел 1: Две палочки (Крестообразный узел) -->
+                    <div class="bg-grany-bg border border-grany-border rounded-2xl p-6 flex flex-col justify-between space-y-6">
+                        <div class="space-y-4">
+                            <!-- Чертеж SVG -->
+                            <div class="w-full h-40 bg-white border border-grany-border/60 rounded-xl flex items-center justify-center p-4 relative overflow-hidden">
+                                <svg class="w-full h-full" viewBox="0 0 200 120" fill="none">
+                                    <!-- Сетка чертежная -->
+                                    <path d="M0,20 H200 M0,40 H200 M0,60 H200 M0,80 H200 M0,100 H200 M20,0 V120 M40,0 V120 M60,0 V120 M80,0 V120 M100,0 V120 M120,0 V120 M140,0 V120 M160,0 V120 M180,0 V120" stroke="#F1EAE1" stroke-width="1"/>
+                                    <!-- Палочка 1 (Горизонтальная) -->
+                                    <rect x="20" y="55" width="160" height="8" rx="2" fill="#CCA87D" stroke="#1C1A19" stroke-width="1"/>
+                                    <line x1="36" y1="55" x2="36" y2="63" stroke="#1C1A19" stroke-dasharray="1 1"/>
+                                    <line x1="164" y1="55" x2="164" y2="63" stroke="#1C1A19" stroke-dasharray="1 1"/>
+                                    <!-- Палочка 2 (Вертикальная) -->
+                                    <rect x="96" y="10" width="8" height="100" rx="2" fill="#D2B48C" stroke="#1C1A19" stroke-width="1"/>
+                                    <!-- Обозначение вылета 8 мм -->
+                                    <path d="M20,50 V45 H36 V50" stroke="#C85A32" stroke-width="1"/>
+                                    <text x="28" y="40" font-family="JetBrains Mono" font-size="8" fill="#C85A32" text-anchor="middle">8мм</text>
+                                    <!-- Силиконовая муфта (Перекрестный бандаж) -->
+                                    <path d="M92,52 L108,66 M92,66 L108,52" stroke="#1C1A19" stroke-width="3" stroke-linecap="round"/>
+                                    <!-- Индикаторы натяжения -->
+                                    <path d="M115,55 L125,50 M115,65 L125,70" stroke="#C85A32" stroke-width="1" marker-end="url(#arrow)"/>
+                                </svg>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="flex justify-between items-baseline">
+                                    <h3 class="font-bold text-base">01. Ортогональный крест</h3>
+                                    <span class="font-mono text-[9px] text-grany-muted">2 ПАЛОЧКИ</span>
+                                </div>
+                                <p class="text-[11px] text-grany-muted leading-relaxed">
+                                    Используется для соединения палочек под прямым углом (90°). Силиконовая муфта натягивается крест-накрест поверх точки пересечения осей, плотно притягивая волокна дерева друг к другу.
+                                </p>
+                            </div>
+                        </div>
+                        <ul class="text-[10px] font-mono text-grany-muted space-y-1 border-t border-grany-border/60 pt-4">
+                            <li>• Наденьте муфту на вылет первой палочки.</li>
+                            <li>• Протяните кольцо по диагонали под второй.</li>
+                            <li>• Зафиксируйте петлю на противоположном вылете.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Узел 2: Две палочки (Параллельное сращивание) -->
+                    <div class="bg-grany-bg border border-grany-border rounded-2xl p-6 flex flex-col justify-between space-y-6">
+                        <div class="space-y-4">
+                            <!-- Чертеж SVG -->
+                            <div class="w-full h-40 bg-white border border-grany-border/60 rounded-xl flex items-center justify-center p-4 relative overflow-hidden">
+                                <svg class="w-full h-full" viewBox="0 0 200 120" fill="none">
+                                    <path d="M0,20 H200 M0,40 H200 M0,60 H200 M0,80 H200 M0,100 H200 M20,0 V120 M40,0 V120 M60,0 V120 M80,0 V120 M100,0 V120 M120,0 V120 M140,0 V120 M160,0 V120 M180,0 V120" stroke="#F1EAE1" stroke-width="1"/>
+                                    <!-- Палочка 1 -->
+                                    <rect x="20" y="48" width="110" height="8" rx="2" fill="#CCA87D" stroke="#1C1A19" stroke-width="1"/>
+                                    <!-- Палочка 2 (С нахлестом) -->
+                                    <rect x="70" y="60" width="110" height="8" rx="2" fill="#D2B48C" stroke="#1C1A19" stroke-width="1"/>
+                                    <!-- Две муфты по краям нахлеста -->
+                                    <rect x="78" y="44" width="6" height="28" rx="3" fill="#1C1A19"/>
+                                    <rect x="116" y="44" width="6" height="28" rx="3" fill="#1C1A19"/>
+                                    <!-- Обозначение перекрытия 4 см -->
+                                    <path d="M70,82 H130" stroke="#C85A32" stroke-width="1" stroke-dasharray="2 2"/>
+                                    <path d="M70,80 V84 M130,80 V84" stroke="#C85A32" stroke-width="1"/>
+                                    <text x="100" y="94" font-family="JetBrains Mono" font-size="8" fill="#C85A32" text-anchor="middle">Зона нахлеста (~4 см)</text>
+                                </svg>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="flex justify-between items-baseline">
+                                    <h3 class="font-bold text-base">02. Параллельный нахлест</h3>
+                                    <span class="font-mono text-[9px] text-grany-muted">УДЛИНЕНИЕ</span>
+                                </div>
+                                <p class="text-[11px] text-grany-muted leading-relaxed">
+                                    Применяется для линейного сращивания двух палочек для увеличения общей длины конструкции. Перекрытие должно составлять не менее 1/3 длины палочки для сохранения жесткости на излом.
+                                </p>
+                            </div>
+                        </div>
+                        <ul class="text-[10px] font-mono text-grany-muted space-y-1 border-t border-grany-border/60 pt-4">
+                            <li>• Сложите две палочки параллельно с нахлестом.</li>
+                            <li>• Зафиксируйте нахлест двумя муфтами по краям.</li>
+                            <li>• Убедитесь, что муфты сидят с максимальным натягом.</li>
+                        </ul>
+                    </div>
+
+                    <!-- Узел 3: Три палочки (Спиральный нахлест / Windmill Joint) -->
+                    <div class="bg-grany-bg border border-grany-border rounded-2xl p-6 flex flex-col justify-between space-y-6">
+                        <div class="space-y-4">
+                            <!-- Чертеж SVG -->
+                            <div class="w-full h-40 bg-white border border-grany-border/60 rounded-xl flex items-center justify-center p-4 relative overflow-hidden">
+                                <svg class="w-full h-full" viewBox="0 0 200 120" fill="none">
+                                    <path d="M0,20 H200 M0,40 H200 M0,60 H200 M0,80 H200 M0,100 H200 M20,0 V120 M40,0 V120 M60,0 V120 M80,0 V120 M100,0 V120 M120,0 V120 M140,0 V120 M160,0 V120 M180,0 V120" stroke="#F1EAE1" stroke-width="1"/>
+                                    <!-- Три оси под углом 120 градусов (Windmill) -->
+                                    <!-- Палочка 1 -->
+                                    <g transform="translate(100, 60) rotate(0)">
+                                        <rect x="-8" y="-4" width="70" height="8" rx="2" fill="#CCA87D" stroke="#1C1A19" stroke-width="1"/>
+                                    </g>
+                                    <!-- Палочка 2 -->
+                                    <g transform="translate(100, 60) rotate(120)">
+                                        <rect x="-8" y="-4" width="70" height="8" rx="2" fill="#D2B48C" stroke="#1C1A19" stroke-width="1"/>
+                                    </g>
+                                    <!-- Палочка 3 -->
+                                    <g transform="translate(100, 60) rotate(240)">
+                                        <rect x="-8" y="-4" width="70" height="8" rx="2" fill="#E5C298" stroke="#1C1A19" stroke-width="1"/>
+                                    </g>
+                                    <!-- Спиральный узел стяжки в центре -->
+                                    <circle cx="100" cy="60" r="12" stroke="#1C1A19" stroke-width="2.5" stroke-dasharray="4 2" fill="none"/>
+                                    <text x="100" y="63" font-family="JetBrains Mono" font-size="9" fill="#1C1A19" font-weight="bold" text-anchor="middle">3D</text>
+                                </svg>
+                            </div>
+                            <div class="space-y-1">
+                                <div class="flex justify-between items-baseline">
+                                    <h3 class="font-bold text-base">03. Спираль (Windmill Joint)</h3>
+                                    <span class="font-mono text-[9px] text-grany-muted">3 ПАЛОЧКИ</span>
+                                </div>
+                                <p class="text-[11px] text-grany-muted leading-relaxed">
+                                    Шедевр сопромата конструктора «ГРАНЬ». При схождении трех стержней в одной вершине их оси не пересекаются в одной точке, а ложатся по кругу со взаимным зацеплением. Это исключает деформацию древесины.
+                                </p>
+                            </div>
+                        </div>
+                        <ul class="text-[10px] font-mono text-grany-muted space-y-1 border-t border-grany-border/60 pt-4">
+                            <li>• Расположите 3 палочки плоско по кругу со сдвигом.</li>
+                            <li>• Стяните центр треугольной петлей из муфты.</li>
+                            <li>• При выходе в 3D узел образует жесткую пирамиду.</li>
+                        </ul>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ИНТЕРАКТИВНАЯ МАСТЕРСКАЯ -->
+        <section id="workshop" class="py-16 px-4 md:px-6 max-w-[1400px] mx-auto space-y-8 relative">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-grany-border pb-6">
+                <div class="space-y-2">
+                    <span class="font-mono text-xs font-bold text-grany-accent uppercase tracking-wider">Интерактивный симулятор</span>
+                    <h2 class="text-3xl md:text-4xl font-bold tracking-tight uppercase">3D Чертежная Мастерская</h2>
+                </div>
+                <p class="text-xs text-grany-muted max-w-md leading-relaxed">
+                    Выберите готовую модель из библиотеки ниже. Вы можете свободно вращать 3D-чертеж в пространстве, детально масштабировать узлы и следовать интерактивному руководству сборки шаг за шагом.
+                </p>
+            </div>
+
+            <!-- ИНТЕРФЕЙС МАСТЕРСКОЙ -->
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+                
+                <!-- ЛЕВАЯ ЧАСТЬ: 3D КАНВАС -->
+                <div class="lg:col-span-7 bg-grany-card rounded-3xl border border-grany-border overflow-hidden relative flex flex-col min-h-[400px] md:min-h-[550px] shadow-sm">
+                    
+                    <!-- Экран загрузки -->
+                    <div id="loader" class="absolute inset-0 bg-grany-card/95 z-30 flex flex-col justify-center items-center transition-opacity duration-500">
+                        <div class="w-10 h-10 border-2 border-grany-accent border-t-transparent rounded-full animate-spin"></div>
+                        <span class="text-[11px] font-mono mt-4 text-grany-muted tracking-widest uppercase">Загрузка файлов моделей ГРАНЬ...</span>
+                    </div>
+
+                    <!-- Контейнер для Three.js -->
+                    <div id="canvas-container" class="w-full flex-grow relative cursor-grab active:cursor-grabbing"></div>
+                    
+                    <!-- Панель навигации по сцене -->
+                    <div class="absolute bottom-4 left-4 right-4 bg-grany-text/95 text-grany-bg px-4 py-3 rounded-xl text-[10px] md:text-xs text-center pointer-events-none backdrop-blur-md border border-white/5 flex justify-center items-center space-x-3 shadow-md font-mono uppercase tracking-wide">
+                        <svg class="w-4 h-4 text-grany-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122" />
+                        </svg>
+                        <span>Зажмите мышь/палец для вращения • Колесико/щипок для зума</span>
+                    </div>
+                </div>
+
+                <!-- ПРАВАЯ ЧАСТЬ: ИНФО-ПАНЕЛЬ И СБОРКА -->
+                <div class="lg:col-span-5 bg-grany-card rounded-3xl border border-grany-border p-6 flex flex-col justify-between space-y-6 shadow-sm">
+                    
+                    <!-- ТАБЫ УПРАВЛЕНИЯ -->
+                    <div class="flex border-b border-grany-border pb-3">
+                        <button onclick="setTab('library')" id="tab-library" class="flex-1 py-2 text-center text-[10px] md:text-xs font-bold tracking-wider uppercase rounded-xl transition-all duration-300 bg-grany-text text-white">
+                            Каталог
+                        </button>
+                        <button onclick="setTab('guide')" id="tab-guide" class="flex-1 py-2 text-center text-[10px] md:text-xs font-bold tracking-wider uppercase rounded-xl transition-all duration-300 text-grany-muted hover:text-grany-text">
+                            Инструкция
+                        </button>
+                        <button onclick="setTab('specs')" id="tab-specs" class="flex-1 py-2 text-center text-[10px] md:text-xs font-bold tracking-wider uppercase rounded-xl transition-all duration-300 text-grany-muted hover:text-grany-text">
+                            Материалы
+                        </button>
+                    </div>
+
+                    <!-- СОДЕРЖИМОЕ ТАБОВ -->
+                    <div class="flex-grow overflow-y-auto max-h-[380px] pr-2">
+                        
+                        <!-- TAB 1: КАТАЛОГ ШАБЛОНОВ -->
+                        <div id="content-library" class="space-y-4">
+                            <h3 class="font-bold text-sm uppercase text-grany-text tracking-wide mb-4">Выберите модель для сборки</h3>
+                            <div class="grid grid-cols-2 gap-3" id="templates-grid">
+                                <!-- Рендерится динамически из моделей, загруженных через fetch() -->
+                            </div>
+                        </div>
+
+                        <!-- TAB 2: ИНСТРУКЦИЯ СБОРКИ -->
+                        <div id="content-guide" class="hidden space-y-4">
+                            <div class="flex justify-between items-center bg-grany-bg p-3 rounded-xl border border-grany-border">
+                                <span class="font-mono text-xs text-grany-accent font-bold" id="guide-step-counter">Шаг 1 из X</span>
+                                <span class="text-[9px] uppercase font-bold text-grany-muted tracking-wider" id="active-model-name">Модель</span>
+                            </div>
+                            <div class="p-4 bg-white rounded-2xl border border-grany-border/60 shadow-sm space-y-2">
+                                <h4 class="font-bold text-sm uppercase text-grany-text" id="guide-step-title">Название шага</h4>
+                                <p class="text-xs text-grany-muted leading-relaxed" id="guide-step-desc">Инструкции по сборке деталей...</p>
+                            </div>
+                            
+                            <!-- Навигационные кнопки -->
+                            <div class="flex gap-3 pt-2">
+                                <button onclick="prevStep()" id="btn-step-prev" class="flex-1 py-3 px-4 border border-grany-border text-xs font-bold rounded-xl bg-white hover:bg-grany-bg transition-colors disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center space-x-1">
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                                    <span>Назад</span>
+                                </button>
+                                <button onclick="nextStep()" id="btn-step-next" class="flex-1 py-3 px-4 bg-grany-text hover:bg-grany-accent text-white text-xs font-bold rounded-xl transition-colors disabled:opacity-30 disabled:pointer-events-none flex items-center justify-center space-x-1">
+                                    <span>Далее</span>
+                                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- TAB 3: ДЕТАЛИ И РАСХОД -->
+                        <div id="content-specs" class="hidden space-y-4">
+                            <h3 class="font-bold text-sm uppercase text-grany-text tracking-wide">Расход деталей под данную модель</h3>
+                            <div class="space-y-2" id="specs-list">
+                                <!-- Рендерится динамически -->
+                            </div>
+                            
+                            <!-- Эффективность коробки -->
+                            <div class="p-4 bg-grany-accentMuted rounded-2xl border border-grany-border mt-4">
+                                <div class="flex items-start space-x-3">
+                                    <svg class="w-5 h-5 text-grany-accent shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <div class="space-y-1">
+                                        <h5 class="text-xs font-bold text-grany-accent uppercase">Совместимость с коробкой «ГРАНЬ Стандарт»</h5>
+                                        <p class="text-[11px] text-grany-muted leading-relaxed" id="box-compatibility-text">
+                                            Из деталей коробки Стандарт можно полностью собрать эту модель.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- ОПИСАНИЕ ТЕКУЩЕЙ АКТИВНОЙ МОДЕЛИ -->
+                    <div class="border-t border-grany-border pt-4 space-y-1">
+                        <h4 class="font-bold text-xs uppercase text-grany-text" id="active-meta-title">Название</h4>
+                        <p class="text-xs text-grany-muted leading-relaxed" id="active-meta-desc">Описание</p>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- ЦЕНЫ И ХАРАКТЕРИСТИКИ НАБОРОВ -->
+        <section id="pricing" class="py-20 bg-grany-text text-grany-bg px-6 relative">
+            <div class="max-w-[1400px] mx-auto">
+                <div class="text-center max-w-3xl mx-auto mb-16 space-y-4">
+                    <span class="font-mono text-xs font-bold uppercase tracking-widest text-grany-accent">Наборы для творчества</span>
+                    <h2 class="text-3xl md:text-5xl font-bold tracking-tight uppercase">Выберите свой формат «ГРАНИ»</h2>
+                    <p class="text-xs text-stone-400 max-w-[65ch] mx-auto leading-relaxed">
+                        Все наборы поставляются в эко-коробках из плотного крафт-картона с монохромной полиграфической графикой. Контраст фактуры теплого шлифованного бамбука и матового графитового силикона выглядит дорого и благородно.
+                    </p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto items-stretch">
+                    
+                    <!-- Card 1: Standard Box -->
+                    <div class="bg-[#242120] border border-stone-800 rounded-3xl p-8 flex flex-col justify-between space-y-8 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-12 h-12 border-b border-l border-stone-800 pointer-events-none"></div>
+                        <div class="space-y-4">
+                            <span class="text-[9px] font-mono uppercase font-bold text-grany-accent tracking-widest bg-grany-accent/10 border border-grany-accent/20 px-2.5 py-1 rounded-full">Основной продукт</span>
+                            <h3 class="text-2xl font-bold uppercase">Набор «ГРАНЬ Стандарт»</h3>
+                            <p class="text-xs text-stone-400 leading-relaxed">Универсальный базовый комплект для терапевтического моделирования, сборки подставок, фоторамок, полок и кинетических мобилей.</p>
+                            <div class="border-t border-stone-800 pt-4 space-y-2 font-mono text-[11px] text-stone-400">
+                                <div class="flex justify-between"><span class="text-stone-500">Бамбук 3 мм (long / short):</span><span class="font-bold text-grany-bg">100 шт. (66 / 33)</span></div>
+                                <div class="flex justify-between"><span class="text-stone-500">Крепеж (силикон 1 см):</span><span class="font-bold text-grany-bg">200 шт.</span></div>
+                                <div class="flex justify-between"><span class="text-stone-500">Микро-прищепки 2.5 см:</span><span class="font-bold text-grany-bg">6 шт.</span></div>
+                                <div class="flex justify-between"><span class="text-stone-500">Руководство и схемы:</span><span class="font-bold text-grany-bg">Комплект карточек</span></div>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-baseline space-x-2">
+                                <span class="text-3xl font-mono font-bold text-grany-accent">590 ₽</span>
+                                <span class="text-[10px] font-mono text-stone-500 uppercase tracking-wider">розничная цена</span>
+                            </div>
+                            <a href="https://www.avito.ru" target="_blank" rel="noopener noreferrer" class="block text-center bg-grany-accent hover:bg-grany-accent/90 text-white text-xs font-mono uppercase tracking-wider font-bold py-4 rounded-xl transition-all duration-300 transform active:scale-[0.98] shadow-md">
+                                Заказать на Авито
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Refill Pack -->
+                    <div class="bg-[#242120] border border-stone-800 rounded-3xl p-8 flex flex-col justify-between space-y-8 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-12 h-12 border-b border-l border-stone-800 pointer-events-none"></div>
+                        <div class="space-y-4">
+                            <span class="text-[9px] font-mono uppercase font-bold text-stone-400 tracking-widest bg-stone-800 px-2.5 py-1 rounded-full">Расширение</span>
+                            <h3 class="text-2xl font-bold uppercase">Набор «ГРАНЬ Дополнение»</h3>
+                            <p class="text-xs text-stone-400 leading-relaxed">Комплект расходников для тех, кто хочет масштабировать постройки, строить сложные пространственные мосты и сферы.</p>
+                            <div class="border-t border-stone-800 pt-4 space-y-2 font-mono text-[11px] text-stone-400">
+                                <div class="flex justify-between"><span class="text-stone-500">Дополнительные палочки:</span><span class="font-bold text-grany-bg">100 шт.</span></div>
+                                <div class="flex justify-between"><span class="text-stone-500">Дополнительные муфты:</span><span class="font-bold text-grany-bg">100 шт.</span></div>
+                                <div class="flex justify-between"><span class="text-stone-500">Формат упаковки:</span><span class="font-bold text-grany-bg">Крафт-конверт</span></div>
+                                <div class="flex justify-between"><span class="text-stone-500">Карточки и декор:</span><span class="font-bold text-stone-500">Не входят</span></div>
+                            </div>
+                        </div>
+                        <div class="space-y-4">
+                            <div class="flex items-baseline space-x-2">
+                                <span class="text-3xl font-mono font-bold text-grany-bg">290 ₽</span>
+                                <span class="text-[10px] font-mono text-stone-500 uppercase tracking-wider">рефил-комплект</span>
+                            </div>
+                            <a href="https://www.avito.ru" target="_blank" rel="noopener noreferrer" class="block text-center border border-stone-700 hover:border-grany-accent text-stone-300 text-xs font-mono uppercase tracking-wider font-bold py-4 rounded-xl transition-all duration-300">
+                                Купить дополнение
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ПОДВАЛ (FOOTER) -->
+    <footer class="border-t border-grany-border bg-grany-card px-6 py-12 text-center text-xs text-grany-muted space-y-4">
+        <div class="max-w-[1400px] mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center space-x-3 text-left">
+                <span class="font-bold text-grany-text uppercase tracking-wider text-sm">ГРАНЬ</span>
+                <span class="border-l border-grany-border pl-3">© 2026. Модульные геометрические системы из бамбука.</span>
+            </div>
+            <div class="flex space-x-6 font-mono text-[10px] uppercase">
+                <a href="#about" class="hover:text-grany-text transition-colors">Концепция</a>
+                <a href="#lashing" class="hover:text-grany-text transition-colors">Ядро</a>
+                <a href="#workshop" class="hover:text-grany-text transition-colors">Чертежи</a>
+                <a href="#pricing" class="hover:text-grany-text transition-colors">Заказ</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ==============================================================================
+         ИНЖЕНЕРНО-МАТЕМАТИЧЕСКАЯ И ВИЗУАЛЬНАЯ ЛОГИКА (JS)
+         ============================================================================== -->
+    <script>
+        const ZenGridConfig = {
+            STICK_RADIUS: 0.15,   // Радиус бамбукового стержня (диаметр 3 мм)
+            JOINT_RADIUS: 0.42,   // Радиус силиконового узла
+            OVERHANG: 0.8,        // Вылет бамбуковой палочки за ось в см
+            L_LONG: 10.0,         // Полная длина длинной палочки в см
+            L_SHORT: 7.0,         // Полная длина короткой палочки в см
+            MAX_VALENCE: 3        // Максимальная валентность (связи)
+        };
+
+        const GranyConfig = ZenGridConfig;
+
+        // ДАННЫЕ БУДУТ АВТОМАТИЧЕСКИ ЗАГРУЖАТЬСЯ ИЗ ВАШЕГО MODELS.JSON ВНЕШНИМ ЗАПРОСОМ
+        let ModelRegistry = {};
+
+        // ==============================================================================
+        // КЛАСС ДИНАМИЧЕСКОГО ТРЕХМЕРНОГО ДВИЖКА
+        // ==============================================================================
+        class GranEngine {
+            constructor(containerId) {
+                this.container = document.getElementById(containerId);
+                this.scene = null;
+                this.camera = null;
+                this.renderer = null;
+                this.controls = null;
+                this.modelGroup = null;
+
+                this.activeModel = null;
+                this.currentStep = 0;
+                this.activeTab = 'library';
+
+                // Хранение мешей для пошаговой сборки
+                this.stickMeshes = [];
+                this.jointMeshes = [];
+                this.labelSprites = [];
+
+                // Палитра материалов (Соответствует Japandi-эстетике «ГРАНИ»)
+                this.materials = {
+                    wood: new THREE.MeshStandardMaterial({ color: 0xD8BFA0, roughness: 0.5, metalness: 0.05 }), // Бамбук
+                    woodActive: new THREE.MeshStandardMaterial({ color: 0xC85A32, roughness: 0.4, emissive: 0xC85A32, emissiveIntensity: 0.25 }), // Свежая деталь
+                    woodGhost: new THREE.MeshStandardMaterial({ color: 0xD8BFA0, transparent: true, opacity: 0.08, depthWrite: false }), // Будущие детали
+                    
+                    rubber: new THREE.MeshStandardMaterial({ color: 0x1F2224, roughness: 0.9, metalness: 0.0 }), // Темный графитовый силикон
+                    rubberActive: new THREE.MeshStandardMaterial({ color: 0xC85A32, roughness: 0.5, emissive: 0xC85A32, emissiveIntensity: 0.3 }),
+                    rubberGhost: new THREE.MeshStandardMaterial({ color: 0x1F2224, transparent: true, opacity: 0.08, depthWrite: false })
+                };
+
+                this.init();
+                this.animate();
+            }
+
+            init() {
+                this.scene = new THREE.Scene();
+                this.scene.background = new THREE.Color(0xF5F2EB); // Цвет песка
+
+                this.camera = new THREE.PerspectiveCamera(38, this.container.clientWidth / this.container.clientHeight, 0.1, 100);
+                this.camera.position.set(12, 10, 16);
+
+                this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+                this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
+                this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+                this.renderer.shadowMap.enabled = true;
+                this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                this.container.appendChild(this.renderer.domElement);
+
+                this.controls = new THREE.OrbitControls(this.camera, this.renderer.domElement);
+                this.controls.enableDamping = true;
+                this.controls.dampingFactor = 0.05;
+                this.controls.maxPolarAngle = Math.PI / 2 + 0.1; // Не позволяет падать камере под плоскость
+
+                // Освещение сцены
+                const ambientLight = new THREE.AmbientLight(0xFFFFFF, 0.75);
+                this.scene.add(ambientLight);
+
+                const mainLight = new THREE.DirectionalLight(0xFFF9F5, 0.85);
+                mainLight.position.set(10, 18, 8);
+                this.scene.add(mainLight);
+
+                const fillLight = new THREE.DirectionalLight(0xE2ECF8, 0.4);
+                fillLight.position.set(-10, -5, -8);
+                this.scene.add(fillLight);
+
+                // Координатная бумажная сетка
+                const gridHelper = new THREE.GridHelper(24, 24, 0xD8D2C4, 0xE8E2D5);
+                gridHelper.position.y = 0;
+                this.scene.add(gridHelper);
+
+                this.modelGroup = new THREE.Group();
+                this.scene.add(this.modelGroup);
+
+                window.addEventListener('resize', () => this.onWindowResize());
+            }
+
+            // Автоматический расчет физических сдвигов осей по зеркальной симметрии
+            calculatePhysicalShifts(nodes, edges) {
+                const nodeEdges = Array.from({ length: nodes.length }, () => []);
+                edges.forEach((edge, idx) => {
+                    nodeEdges[edge.n1].push(idx);
+                    nodeEdges[edge.n2].push(idx);
+                });
+
+                let minX = Infinity, maxX = -Infinity;
+                nodes.forEach(n => {
+                    if (n.x < minX) minX = n.x;
+                    if (n.x > maxX) maxX = n.x;
+                });
+                const xMid = (minX + maxX) / 2;
+
+                const symNodes = {};
+                for (let i = 0; i < nodes.length; i++) {
+                    const ni = nodes[i];
+                    let bestJ = -1;
+                    let minDist = Infinity;
+                    for (let j = 0; j < nodes.length; j++) {
+                        if (i === j) continue;
+                        const nj = nodes[j];
+                        const xExpect = 2 * xMid - ni.x;
+                        const dist = Math.abs(nj.x - xExpect) + Math.abs(nj.y - ni.y) + Math.abs(nj.z - ni.z);
+                        if (dist < minDist) {
+                            minDist = dist;
+                            bestJ = j;
+                        }
+                    }
+                    if (minDist < 0.2) {
+                        symNodes[i] = bestJ;
+                    }
+                }
+
+                const symEdges = {};
+                for (let e1 = 0; e1 < edges.length; e1++) {
+                    const edge1 = edges[e1];
+                    const s1 = symNodes[edge1.n1];
+                    const s2 = symNodes[edge1.n2];
+                    
+                    let foundSym = e1;
+                    for (let e2 = 0; e2 < edges.length; e2++) {
+                        const edge2 = edges[e2];
+                        if ((edge2.n1 === s1 && edge2.n2 === s2) || (edge2.n1 === s2 && edge2.n2 === s1)) {
+                            foundSym = e2;
+                            break;
+                        }
+                    }
+                    symEdges[e1] = foundSym;
+                }
+
+                const shifts = {};
+                const r = GranyConfig.STICK_RADIUS;
+
+                for (let nIdx = 0; nIdx < nodes.length; nIdx++) {
+                    if (nodes[nIdx].x > xMid + 0.01) continue;
+
+                    const connected = nodeEdges[nIdx];
+                    if (connected.length === 3) {
+                        const e0 = connected[0];
+                        const e1 = connected[1];
+                        const e2 = connected[2];
+
+                        const u0 = this.getDirAwayFromNode(edges[e0], nodes, nIdx);
+                        const u1 = this.getDirAwayFromNode(edges[e1], nodes, nIdx);
+                        const u2 = this.getDirAwayFromNode(edges[e2], nodes, nIdx);
+
+                        const n01 = new THREE.Vector3().crossVectors(u0, u1).normalize();
+                        const n12 = new THREE.Vector3().crossVectors(u1, u2).normalize();
+                        const n20 = new THREE.Vector3().crossVectors(u2, u0).normalize();
+
+                        const offsetDist = r * 0.7;
+
+                        const shift0 = new THREE.Vector3().addScaledVector(n01, offsetDist).addScaledVector(n20, -offsetDist);
+                        const shift1 = new THREE.Vector3().addScaledVector(n12, offsetDist).addScaledVector(n01, -offsetDist);
+                        const shift2 = new THREE.Vector3().addScaledVector(n20, offsetDist).addScaledVector(n12, -offsetDist);
+
+                        shifts[`${e0}_${nIdx}`] = shift0;
+                        shifts[`${e1}_${nIdx}`] = shift1;
+                        shifts[`${e2}_${nIdx}`] = shift2;
+
+                        const symN = symNodes[nIdx];
+                        if (symN !== undefined && symN !== nIdx) {
+                            const symE0 = symEdges[e0];
+                            const symE1 = symEdges[e1];
+                            const symE2 = symEdges[e2];
+
+                            shifts[`${symE0}_${symN}`] = new THREE.Vector3(-shift0.x, shift0.y, shift0.z);
+                            shifts[`${symE1}_${symN}`] = new THREE.Vector3(-shift1.x, shift1.y, shift1.z);
+                            shifts[`${symE2}_${symN}`] = new THREE.Vector3(-shift2.x, shift2.y, shift2.z);
+                        }
+                    }
+                }
+                return shifts;
+            }
+
+            getDirAwayFromNode(edge, nodes, nodeIdx) {
+                if (edge.n1 === nodeIdx) {
+                    return new THREE.Vector3().subVectors(nodes[edge.n2], nodes[edge.n1]).normalize();
+                } else {
+                    return new THREE.Vector3().subVectors(nodes[edge.n1], nodes[edge.n2]).normalize();
+                }
+            }
+
+            // РАСКЛАДКА И РИСОВАНИЕ 3D МОДЕЛИ НА ЭКРАНЕ С ВЫРАВНИВАНИЕМ ПО СЕТКЕ
+            loadModel(model) {
+                this.activeModel = model;
+                this.currentStep = 0;
+
+                // СБРАСЫВАЕМ ЛОКАЛЬНЫЕ СДВИГИ И ПОВОРОТЫ ПЕРЕД ГЕНЕРАЦИЕЙ НОВОЙ МОДЕЛИ
+                this.modelGroup.position.set(0, 0, 0);
+                this.modelGroup.rotation.set(0, 0, 0);
+
+                // Очистка предыдущих мешей
+                while (this.modelGroup.children.length > 0) {
+                    this.modelGroup.remove(this.modelGroup.children[0]);
+                }
+
+                this.stickMeshes = [];
+                this.jointMeshes = [];
+                this.labelSprites = [];
+
+                // Преобразование объектов из JSON в объекты THREE.Vector3
+                const nodes = model.nodes.map(n => new THREE.Vector3(n.x, n.y, n.z));
+                const edges = model.edges;
+                const shifts = this.calculatePhysicalShifts(nodes, edges);
+
+                const rStick = ZenGridConfig.STICK_RADIUS;
+                const rJoint = ZenGridConfig.JOINT_RADIUS;
+                const overhang = ZenGridConfig.OVERHANG;
+
+                // 1. Построение эластичных силиконовых муфт (Узлов)
+                nodes.forEach((node, idx) => {
+                    const geometry = new THREE.SphereGeometry(rJoint, 24, 24);
+                    const mesh = new THREE.Mesh(geometry, this.materials.rubber);
+                    mesh.position.copy(node);
+                    this.modelGroup.add(mesh); // Добавляем напрямую в modelGroup
+                    this.jointMeshes.push(mesh);
+                });
+
+                // 2. Построение бамбуковых несущих палочек
+                edges.forEach((edge, idx) => {
+                    const shiftN1 = shifts[`${idx}_${edge.n1}`] || new THREE.Vector3();
+                    const shiftN2 = shifts[`${idx}_${edge.n2}`] || new THREE.Vector3();
+
+                    const p1 = nodes[edge.n1].clone().add(shiftN1);
+                    const p2 = nodes[edge.n2].clone().add(shiftN2);
+
+                    const direction = new THREE.Vector3().subVectors(p2, p1).normalize();
+
+                    // Продление палочки по правилу Overhang на 8 мм с каждого конца [4]
+                    const p1Extended = p1.clone().addScaledVector(direction, -overhang);
+                    const p2Extended = p2.clone().addScaledVector(direction, overhang);
+
+                    const stickLen = p1Extended.distanceTo(p2Extended);
+                    const midpoint = new THREE.Vector3().addVectors(p1Extended, p2Extended).multiplyScalar(0.5);
+
+                    const stickGeo = new THREE.CylinderGeometry(rStick, rStick, stickLen, 16);
+                    const stickMesh = new THREE.Mesh(stickGeo, this.materials.wood);
+                    stickMesh.position.copy(midpoint);
+
+                    // Разворот цилиндра вдоль вектора направления
+                    const defaultDirection = new THREE.Vector3(0, 1, 0);
+                    const quaternion = new THREE.Quaternion().setFromUnitVectors(defaultDirection, direction);
+                    stickMesh.setRotationFromQuaternion(quaternion);
+
+                    this.modelGroup.add(stickMesh); // Добавляем напрямую в modelGroup
+                    this.stickMeshes.push(stickMesh);
+
+                    // Генерация 3D Спецификации / Парящего лейбла длины
+                    const textLabel = edge.type === "long" ? "10 см" : "7 см";
+                    const sprite = this.createTextSprite(textLabel);
+                    sprite.position.copy(midpoint);
+                    
+                    // Смещение этикетки, чтобы не пересекала палку
+                    const labelOffset = new THREE.Vector3().crossVectors(direction, new THREE.Vector3(0, 0, 1));
+                    if (labelOffset.lengthSq() < 1e-5) {
+                        labelOffset.crossVectors(direction, new THREE.Vector3(0, 1, 0));
+                    }
+                    labelOffset.normalize().multiplyScalar(0.4);
+                    sprite.position.add(labelOffset);
+
+                    this.modelGroup.add(sprite); // Добавляем напрямую в modelGroup
+                    this.labelSprites.push(sprite);
+                });
+
+                // ==============================================================================
+                // АЛГОРИТМ ЦЕНТРИРОВАНИЯ ЦЕЛИКОМ В КОНЦЕ
+                // ==============================================================================
+
+                // 1. Поворачиваем всю собранную модель вертикально (Z — высота)
+                this.modelGroup.rotation.x = -Math.PI / 2;
+
+                // 2. Принудительно обновляем мировые матрицы, чтобы расчет габаритов был точным
+                this.modelGroup.updateMatrixWorld(true);
+
+                // 3. Вычисляем bounding box всей повернутой модели в пространстве сцены
+                const bbox = new THREE.Box3().setFromObject(this.modelGroup);
+                const center = new THREE.Vector3();
+                bbox.getCenter(center);
+                const size = new THREE.Vector3();
+                bbox.getSize(size);
+
+                // 4. Смещаем саму группу целиком в центр сетки (X и Z в 0, а низ Y — на плоскость стола Y = 0)
+                this.modelGroup.position.x = -center.x;
+                this.modelGroup.position.z = -center.z;
+                this.modelGroup.position.y = -bbox.min.y; 
+
+                // 5. Настраиваем точку фокуса камеры (target) ровно в геометрический центр отцентрированной модели
+                if (this.controls) {
+                    this.controls.target.set(0, size.y / 2, 0);
+                }
+
+                this.updateInteractiveViewState();
+            }
+
+            createTextSprite(text) {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = 256;
+                canvas.height = 128;
+
+                ctx.fillStyle = 'rgba(28, 26, 25, 0.95)'; // Угольный
+                this.drawRoundedRect(ctx, 8, 8, 240, 112, 24);
+                ctx.fill();
+
+                ctx.strokeStyle = 'rgba(200, 90, 50, 0.5)'; // Обожженная глина
+                ctx.lineWidth = 3;
+                ctx.stroke();
+
+                ctx.font = 'bold 50px Outfit, sans-serif';
+                ctx.fillStyle = '#F5F2EB';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(text, 128, 64);
+
+                const texture = new THREE.CanvasTexture(canvas);
+                const spriteMat = new THREE.SpriteMaterial({ map: texture, depthTest: true, depthWrite: false });
+                const sprite = new THREE.Sprite(spriteMat);
+                sprite.scale.set(1.1, 0.55, 1.0);
+                return sprite;
+            }
+
+            drawRoundedRect(ctx, x, y, w, h, r) {
+                ctx.beginPath();
+                ctx.moveTo(x + r, y);
+                ctx.lineTo(x + w - r, y);
+                ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+                ctx.lineTo(x + w, y + h - r);
+                ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+                ctx.lineTo(x + r, y + h);
+                ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+                ctx.lineTo(x, y + r);
+                ctx.quadraticCurveTo(x, y, x + r, y);
+                ctx.closePath();
+            }
+
+            // Пошаговая логика отображения
+            updateInteractiveViewState() {
+                if (!this.activeModel) return;
+
+                const step = this.currentStep;
+                const model = this.activeModel;
+
+                if (this.activeTab === 'library' || this.activeTab === 'specs') {
+                    this.stickMeshes.forEach((mesh, idx) => {
+                        mesh.material = this.materials.wood;
+                        this.labelSprites[idx].visible = true;
+                        this.labelSprites[idx].material.opacity = 0.95;
+                    });
+                    this.jointMeshes.forEach(mesh => {
+                        mesh.material = this.materials.rubber;
+                    });
+                    return;
+                }
+
+                const stepData = model.assemblySteps[step];
+                const activeEdges = stepData.edges;
+                const activeNodes = stepData.nodes;
+
+                this.stickMeshes.forEach((mesh, idx) => {
+                    const parentStepIdx = model.assemblySteps.findIndex(s => s.edges.includes(idx));
+                    const label = this.labelSprites[idx];
+
+                    if (parentStepIdx < step && parentStepIdx !== -1) {
+                        mesh.material = this.materials.wood;
+                        label.visible = true;
+                        label.material.opacity = 0.35;
+                    } else if (activeEdges.includes(idx)) {
+                        mesh.material = this.materials.woodActive;
+                        label.visible = true;
+                        label.material.opacity = 1.0;
+                    } else {
+                        mesh.material = this.materials.woodGhost;
+                        label.visible = false;
+                    }
+                });
+
+                this.jointMeshes.forEach((mesh, idx) => {
+                    const parentStepIdx = model.assemblySteps.findIndex(s => s.nodes.includes(idx));
+
+                    if (parentStepIdx < step && parentStepIdx !== -1) {
+                        mesh.material = this.materials.rubber;
+                    } else if (activeNodes.includes(idx)) {
+                        mesh.material = this.materials.rubberActive;
+                    } else {
+                        mesh.material = this.materials.rubberGhost;
+                    }
+                });
+            }
+
+            animate() {
+                requestAnimationFrame(() => this.animate());
+                if (this.controls) this.controls.update();
+                if (this.renderer && this.scene && this.camera) {
+                    this.renderer.render(this.scene, this.camera);
+                }
+            }
+
+            onWindowResize() {
+                this.camera.aspect = this.container.clientWidth / this.container.clientHeight;
+                this.camera.updateProjectionMatrix();
+                this.renderer.setSize(this.container.clientWidth, this.container.clientHeight);
+            }
+        }
+
+        // ==============================================================================
+        // ГЛОБАЛЬНЫЙ КЛИЕНТСКИЙ МЕНЕДЖЕР ПРИЛОЖЕНИЯ
+        // ==============================================================================
+        let engine;
+        let currentActiveModelId = "phoneStand";
+        let activeTab = "library";
+
+        window.addEventListener('DOMContentLoaded', () => {
+            engine = new GranEngine('canvas-container');
+            loadModelsData();
+        });
+
+        async function loadModelsData() {
+            try {
+                const response = await fetch('./models.json');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}: Файл не найден`);
+                }
+                ModelRegistry = await response.json();
+                
+                renderTemplatesLibrary();
+                
+                const firstId = Object.keys(ModelRegistry)[0];
+                currentActiveModelId = ModelRegistry["phoneStand"] ? "phoneStand" : firstId;
+                
+                selectModel(currentActiveModelId);
+
+                const loader = document.getElementById('loader');
+                if (loader) {
+                    loader.style.opacity = 0;
+                    setTimeout(() => { loader.style.display = 'none'; }, 500);
+                }
+            } catch (error) {
+                console.error("Детали ошибки:", error);
+                
+                const loaderSpan = document.querySelector('#loader span');
+                if (loaderSpan) {
+                    let errorDetails = "Убедитесь, что файл models.json лежит в той же папке, что и index.html.";
+                    
+                    // Проверка 1: Запуск через двойной клик (протокол file://)
+                    if (window.location.protocol === 'file:') {
+                        errorDetails = "Вы запустили index.html двойным кликом из папки. Браузеры блокируют локальные fetch-запросы по соображениям безопасности. Запустите проект через локальный сервер (например, расширение Live Server в VS Code) или просто загрузите оба файла на GitHub Pages — там всё заработает автоматически.";
+                    } 
+                    // Проверка 2: Ошибка в самом JSON
+                    else if (error.message.includes("JSON") || error.message.includes("syntax")) {
+                        errorDetails = "Внутри вашего файла models.json есть синтаксическая ошибка (например, забытая кавычка или лишняя запятая в конце списка). Проверьте его валидность через любой онлайн-сервис проверки JSON.";
+                    }
+                    
+                    loaderSpan.innerHTML = `
+                        <span class="text-grany-accent font-bold uppercase block mb-2">Ошибка загрузки моделей</span>
+                        <span class="text-[10px] normal-case text-grany-muted leading-relaxed block max-w-sm text-center">
+                            ${errorDetails}
+                            <br><span class="font-mono text-[9px] mt-2 block text-stone-400">Технические детали: ${error.message}</span>
+                        </span>
+                    `;
+                }
+                const loaderIcon = document.querySelector('#loader .animate-spin');
+                if (loaderIcon) {
+                    loaderIcon.style.display = 'none';
+                }
+            }
+        }
+
+        function renderTemplatesLibrary() {
+            const grid = document.getElementById('templates-grid');
+            grid.innerHTML = "";
+
+            Object.values(ModelRegistry).forEach(model => {
+                const card = document.createElement('button');
+                card.id = `card-${model.id}`;
+                card.className = `p-4 rounded-2xl border text-left transition-all duration-300 flex flex-col justify-between aspect-video ${
+                    model.id === currentActiveModelId 
+                    ? 'border-grany-accent bg-grany-accentMuted text-grany-text shadow-sm' 
+                    : 'border-grany-border bg-white hover:border-grany-text text-grany-muted hover:text-grany-text'
+                }`;
+                card.onclick = () => selectModel(model.id);
+
+                card.innerHTML = `
+                    <div class="flex justify-between items-start w-full">
+                        <div class="p-2 rounded-lg ${model.id === currentActiveModelId ? 'bg-white text-grany-accent' : 'bg-grany-bg text-grany-muted'}">
+                            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                ${model.icon || `<rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" stroke-width="1.5"/>`}
+                            </svg>
+                        </div>
+                        <span class="font-mono text-[10px] font-bold text-grany-accent">${model.edges.length} дет.</span>
+                    </div>
+                    <div class="mt-4">
+                        <h4 class="font-bold text-xs md:text-sm text-grany-text uppercase tracking-tight">${model.name}</h4>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function selectModel(modelId) {
+            currentActiveModelId = modelId;
+            const model = ModelRegistry[modelId];
+            if (!model) return;
+            
+            Object.keys(ModelRegistry).forEach(id => {
+                const card = document.getElementById(`card-${id}`);
+                if (card) {
+                    const isActive = (id === modelId);
+                    card.className = `p-4 rounded-2xl border text-left transition-all duration-300 flex flex-col justify-between aspect-video ${
+                        isActive 
+                        ? 'border-grany-accent bg-grany-accentMuted text-grany-text shadow-sm' 
+                        : 'border-grany-border bg-white hover:border-grany-text text-grany-muted hover:text-grany-text'
+                    }`;
+                }
+            });
+
+            document.getElementById('active-meta-title').innerText = model.name;
+            document.getElementById('active-meta-desc').innerText = model.description;
+            document.getElementById('active-model-name').innerText = model.name;
+
+            engine.loadModel(model);
+            updateSpecsAndCompatibility(model);
+            updateGuideStepHTML();
+        }
+
+        function setTab(tabName) {
+            activeTab = tabName;
+            engine.activeTab = tabName;
+
+            const tabs = ['library', 'guide', 'specs'];
+            tabs.forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                const content = document.getElementById('content-' + t);
+                if (t === tabName) {
+                    btn.className = "flex-1 py-2 text-center text-[10px] md:text-xs font-bold tracking-wider uppercase rounded-xl bg-grany-text text-white transition-all duration-300";
+                    content.classList.remove('hidden');
+                } else {
+                    btn.className = "flex-1 py-2 text-center text-[10px] md:text-xs font-bold tracking-wider uppercase rounded-xl text-grany-muted hover:text-grany-text transition-all duration-300";
+                    content.classList.add('hidden');
+                }
+            });
+
+            engine.updateInteractiveViewState();
+        }
+
+        function updateSpecsAndCompatibility(model) {
+            const longQty = model.edges.filter(e => e.type === 'long').length;
+            const shortQty = model.edges.filter(e => e.type === 'short').length;
+            const totalSticks = longQty + shortQty;
+            const siliconeQty = model.nodes.length;
+
+            const specsList = document.getElementById('specs-list');
+            specsList.innerHTML = `
+                <div class="flex justify-between items-center py-2 border-b border-grany-border text-xs font-mono">
+                    <span class="text-grany-muted">Палочки 10 см (Long):</span>
+                    <span class="font-bold text-grany-text">${longQty} шт.</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-grany-border text-xs font-mono">
+                    <span class="text-grany-muted">Палочки 7 см (Short):</span>
+                    <span class="font-bold text-grany-text">${shortQty} шт.</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-grany-border text-xs font-mono">
+                    <span class="text-grany-muted">Силиконовые муфты:</span>
+                    <span class="font-bold text-grany-text">${siliconeQty} шт.</span>
+                </div>
+                <div class="flex justify-between items-center py-2 text-xs font-mono">
+                    <span class="text-grany-muted font-bold">Итого деталей:</span>
+                    <span class="font-bold text-grany-accent">${totalSticks + siliconeQty} шт.</span>
+                </div>
+            `;
+
+            const remLong = 66 - longQty;
+            const remShort = 33 - shortQty;
+            const remSilicone = 200 - siliconeQty;
+
+            document.getElementById('box-compatibility-text').innerHTML = `
+                Для сборки требуется <strong>${totalSticks}</strong> из 100 палочек и <strong>${siliconeQty}</strong> из 200 муфт. 
+                После сборки в коробке «ГРАНЬ Стандарт» останется еще <strong>${remLong}</strong> длинных, <strong>${remShort}</strong> коротких элементов и <strong>${remSilicone}</strong> резинок.
+            `;
+        }
+
+        function nextStep() {
+            const model = ModelRegistry[currentActiveModelId];
+            if (engine.currentStep < model.assemblySteps.length - 1) {
+                engine.currentStep++;
+                engine.updateInteractiveViewState();
+                updateGuideStepHTML();
+            }
+        }
+
+        function prevStep() {
+            if (engine.currentStep > 0) {
+                engine.currentStep--;
+                engine.updateInteractiveViewState();
+                updateGuideStepHTML();
+            }
+        }
+
+        function updateGuideStepHTML() {
+            const model = ModelRegistry[currentActiveModelId];
+            if (!model) return;
+            
+            const currentStepIdx = engine.currentStep;
+            const stepData = model.assemblySteps[currentStepIdx];
+
+            document.getElementById('guide-step-counter').innerText = `Шаг ${currentStepIdx + 1} из ${model.assemblySteps.length}`;
+            document.getElementById('guide-step-title').innerText = stepData.title;
+            document.getElementById('guide-step-desc').innerText = stepData.desc;
+
+            document.getElementById('btn-step-prev').disabled = (currentStepIdx === 0);
+            document.getElementById('btn-step-next').disabled = (currentStepIdx === model.assemblySteps.length - 1);
+        }
+    </script>
+</body>
+</html>
