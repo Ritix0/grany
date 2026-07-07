@@ -418,7 +418,7 @@
                             <h3 class="text-2xl font-bold uppercase">Набор «ГРАНЬ Стандарт»</h3>
                             <p class="text-xs text-stone-400 leading-relaxed">Универсальный базовый комплект для терапевтического моделирования, сборки подставок, фоторамок, полок и кинетических мобилей.</p>
                             <div class="border-t border-stone-800 pt-4 space-y-2 font-mono text-[11px] text-stone-400">
-                                <div class="flex justify-between"><span class="text-stone-500">Бамбук 3 мм (long / short):</span><span class="font-bold text-grany-bg">100 шт. (66 / 33)</span></div>
+                                <div class="flex justify-between"><span class="text-stone-500">Бамбук 4 мм (long / short):</span><span class="font-bold text-grany-bg">100 шт. (50 / 50)</span></div>
                                 <div class="flex justify-between"><span class="text-stone-500">Крепеж (силикон 1 см):</span><span class="font-bold text-grany-bg">200 шт.</span></div>
                                 <div class="flex justify-between"><span class="text-stone-500">Микро-прищепки 2.5 см:</span><span class="font-bold text-grany-bg">6 шт.</span></div>
                                 <div class="flex justify-between"><span class="text-stone-500">Руководство и схемы:</span><span class="font-bold text-grany-bg">Комплект карточек</span></div>
@@ -487,8 +487,8 @@
          ============================================================================== -->
     <script>
         const ZenGridConfig = {
-            STICK_RADIUS: 0.15,   // Радиус бамбукового стержня (диаметр 3 мм)
-            JOINT_RADIUS: 0.42,   // Радиус силиконового узла
+            STICK_RADIUS: 0.2,   // Радиус бамбукового стержня (диаметр 3 мм)
+            JOINT_RADIUS: 0.55,   // Радиус силиконового узла
             OVERHANG: 0.8,        // Вылет бамбуковой палочки за ось в см
             L_LONG: 10.0,         // Полная длина длинной палочки в см
             L_SHORT: 7.0,         // Полная длина короткой палочки в см
@@ -1071,8 +1071,8 @@
                 </div>
             `;
 
-            const remLong = 66 - longQty;
-            const remShort = 33 - shortQty;
+            const remLong = 50 - longQty; 
+            const remShort = 50 - shortQty;
             const remSilicone = 200 - siliconeQty;
 
             document.getElementById('box-compatibility-text').innerHTML = `
