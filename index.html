@@ -147,13 +147,13 @@
                     <span class="font-mono text-xs font-bold text-grany-accent uppercase tracking-wider">Инженерный регламент</span>
                     <h2 class="text-3xl md:text-4xl font-bold tracking-tight uppercase">Инструкция по фиксации и вязке узлов</h2>
                     <p class="text-sm text-grany-muted leading-relaxed max-w-[70ch]">
-                        Прочность и жесткость каркаса «ГРАНЬ» зависят от правильного натяжения силиконовых муфт. Муфта работает за счет силы трения и плотного обхвата бамбука. Ниже приведены базовые физические узлы, используемые во всех схемах сборки.
+                        Прочность и неизменяемость геометрии каркаса «ГРАНЬ» основаны на двух законах физики: <strong class="text-grany-accent">триангуляции</strong> (жесткости треугольных ферм) и <strong class="text-grany-accent">симметрии натяжения</strong> муфт. Муфта работает за счет трения, но неравномерная стяжка может искривить всю раму. Ниже приведены ключевые правила сборки узлов.
                     </p>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     
-                    <!-- Узел 1: Две палочки (Крестообразный узел) -->
+                    <!-- Узел 1: Две палочки (Крестообразный узел и противодействие) -->
                     <div class="bg-grany-bg border border-grany-border rounded-2xl p-6 flex flex-col justify-between space-y-6">
                         <div class="space-y-4">
                             <!-- Чертеж SVG -->
@@ -179,21 +179,23 @@
                             <div class="space-y-1">
                                 <div class="flex justify-between items-baseline">
                                     <h3 class="font-bold text-base">01. Ортогональный крест</h3>
-                                    <span class="font-mono text-[9px] text-grany-muted">2 ПАЛОЧКИ</span>
+                                    <span class="font-mono text-[9px] text-grany-accent font-bold">КОМПЕНСАЦИЯ НАКЛОНА</span>
                                 </div>
                                 <p class="text-[11px] text-grany-muted leading-relaxed">
-                                    Используется для соединения палочек под прямым углом (90°). Силиконовая муфта натягивается крест-накрест поверх точки пересечения осей, плотно притягивая волокна дерева друг к другу.
+                                    <strong>Проблема перекоса:</strong> если намотать муфту только по одной диагонали вокруг двух соседних выступов (по 8 мм), они сомкнутся, а противоположные концы вывернет наружу, что создаст деформацию («винт»).
+                                    <br><br>
+                                    <strong>Чистые 90 градусов:</strong> чтобы палочки не смыкались под натяжением резинок, нужно равное силовое противодействие. Натягивайте резинку крест-накрест (в форме буквы X) либо вяжите «восьмерку», создавая встречные компенсирующие силы во всех направлениях.
                                 </p>
                             </div>
                         </div>
                         <ul class="text-[10px] font-mono text-grany-muted space-y-1 border-t border-grany-border/60 pt-4">
-                            <li>• Наденьте муфту на вылет первой палочки.</li>
-                            <li>• Протяните кольцо по диагонали под второй.</li>
-                            <li>• Зафиксируйте петлю на противоположном вылете.</li>
+                            <li>• Не стягивайте только одну сторону угла.</li>
+                            <li>• Используйте X-образный бандаж для баланса сил.</li>
+                            <li>• Перекрестие резинки в пазу служит упором.</li>
                         </ul>
                     </div>
 
-                    <!-- Узел 2: Две палочки (Параллельное сращивание) -->
+                    <!-- Узел 2: Триангуляция и нахлест (Закон жесткости и Двойной замок) -->
                     <div class="bg-grany-bg border border-grany-border rounded-2xl p-6 flex flex-col justify-between space-y-6">
                         <div class="space-y-4">
                             <!-- Чертеж SVG -->
@@ -204,29 +206,48 @@
                                     <rect x="20" y="48" width="110" height="8" rx="2" fill="#CCA87D" stroke="#1C1A19" stroke-width="1"/>
                                     <!-- Палочка 2 (С нахлестом) -->
                                     <rect x="70" y="60" width="110" height="8" rx="2" fill="#D2B48C" stroke="#1C1A19" stroke-width="1"/>
-                                    <!-- Две муфты по краям нахлеста -->
-                                    <rect x="78" y="44" width="6" height="28" rx="3" fill="#1C1A19"/>
-                                    <rect x="116" y="44" width="6" height="28" rx="3" fill="#1C1A19"/>
-                                    <!-- Обозначение перекрытия 4 см -->
+                                    
+                                    <!-- Левый кокон-замок -->
+                                    <g transform="translate(74, 44)">
+                                        <rect x="0" y="0" width="22" height="28" rx="3" fill="#1C1A19"/>
+                                        <line x1="5" y1="0" x2="5" y2="28" stroke="#444" stroke-width="1"/>
+                                        <line x1="11" y1="0" x2="11" y2="28" stroke="#444" stroke-width="1"/>
+                                        <line x1="17" y1="0" x2="17" y2="28" stroke="#444" stroke-width="1"/>
+                                    </g>
+                                    
+                                    <!-- Правый кокон-замок -->
+                                    <g transform="translate(114, 44)">
+                                        <rect x="0" y="0" width="22" height="28" rx="3" fill="#1C1A19"/>
+                                        <line x1="5" y1="0" x2="5" y2="28" stroke="#444" stroke-width="1"/>
+                                        <line x1="11" y1="0" x2="11" y2="28" stroke="#444" stroke-width="1"/>
+                                        <line x1="17" y1="0" x2="17" y2="28" stroke="#444" stroke-width="1"/>
+                                    </g>
+
+                                    <!-- Обозначение перекрытия 5 см -->
                                     <path d="M70,82 H130" stroke="#C85A32" stroke-width="1" stroke-dasharray="2 2"/>
                                     <path d="M70,80 V84 M130,80 V84" stroke="#C85A32" stroke-width="1"/>
-                                    <text x="100" y="94" font-family="JetBrains Mono" font-size="8" fill="#C85A32" text-anchor="middle">Зона нахлеста (~4 см)</text>
+                                    <text x="100" y="94" font-family="JetBrains Mono" font-size="8" fill="#C85A32" text-anchor="middle">Зона нахлеста (~4-5 см)</text>
                                 </svg>
                             </div>
                             <div class="space-y-1">
                                 <div class="flex justify-between items-baseline">
-                                    <h3 class="font-bold text-base">02. Параллельный нахлест</h3>
-                                    <span class="font-mono text-[9px] text-grany-muted">УДЛИНЕНИЕ</span>
+                                    <h3 class="font-bold text-base">02. Закон жесткости</h3>
+                                    <span class="font-mono text-[9px] text-grany-accent font-bold">ТРИАНГУЛЯЦИЯ И ДВОЙНОЙ КОКОН</span>
                                 </div>
                                 <p class="text-[11px] text-grany-muted leading-relaxed">
-                                    Применяется для линейного сращивания двух палочек для увеличения общей длины конструкции. Перекрытие должно составлять не менее 1/3 длины палочки для сохранения жесткости на излом.
+                                    <strong>Правило треугольника:</strong> треугольник — это единственная жесткая плоская фигура. Любые рамы в вертикальных плоскостях обязательно должны быть триангулированы.
+                                    <br><br>
+                                    <strong>Вязка двойного кокона (нахлест):</strong> чтобы палочки не люфтили на излом, на месте перекрытия вяжут два кокона по краям нахлеста (слева и справа) по пошаговой инструкции ниже.
                                 </p>
                             </div>
                         </div>
-                        <ul class="text-[10px] font-mono text-grany-muted space-y-1 border-t border-grany-border/60 pt-4">
-                            <li>• Сложите две палочки параллельно с нахлестом.</li>
-                            <li>• Зафиксируйте нахлест двумя муфтами по краям.</li>
-                            <li>• Убедитесь, что муфты сидят с максимальным натягом.</li>
+                        <ul class="text-[10px] font-mono text-grany-muted space-y-1.5 border-t border-grany-border/60 pt-4">
+                            <li>• <strong>1. Уложите резинку вдоль палок:</strong> вытяните резиновую петлю в линию вдоль стыка. Посередине ляжет двойная нить, а по бокам выступят левое и правое «ушка».</li>
+                            <li>• <strong>2. Начните обмотку:</strong> прижмите левое ушко пальцем к палкам. Правое ушко сильно растяните и сделайте первый оборот поверх лежащей вдоль резинки.</li>
+                            <li>• <strong>3. Сделайте плотный кокон:</strong> туго мотайте резинку справа налево к левому ушку. Продольная часть резинки при этом скроется под витками.</li>
+                            <li>• <strong>4. Закройте замок:</strong> у самого левого края проденьте финальную петельку сквозь левое ушко, которое вы прижимали пальцем.</li>
+                            <li>• <strong>5. Спрячьте концы:</strong> отпустите натяжение. Сила упругости заставит резинку сжаться, и продетые петли втянутся под крайние витки обмотки.</li>
+                            <li class="text-grany-accent">• <em>Повторите процедуру зеркально на втором конце нахлеста.</em></li>
                         </ul>
                     </div>
 
@@ -258,17 +279,19 @@
                             <div class="space-y-1">
                                 <div class="flex justify-between items-baseline">
                                     <h3 class="font-bold text-base">03. Спираль (Windmill Joint)</h3>
-                                    <span class="font-mono text-[9px] text-grany-muted">3 ПАЛОЧКИ</span>
+                                    <span class="font-mono text-[9px] text-grany-accent font-bold">3 ПАЛОЧКИ</span>
                                 </div>
                                 <p class="text-[11px] text-grany-muted leading-relaxed">
-                                    Шедевр сопромата конструктора «ГРАНЬ». При схождении трех стержней в одной вершине их оси не пересекаются в одной точке, а ложатся по кругу со взаимным зацеплением. Это исключает деформацию древесины.
+                                    <strong>Самоцентровка нагрузок:</strong> при соединении трех стержней в одной вершине их оси не пересекаются в одной точке, а ложатся по кругу со взаимным зацеплением.
+                                    <br><br>
+                                    <strong>Распределение сил:</strong> такое смещение исключает появление слабого места излома. Сила натяжения муфт распределяется по кругу, автоматически выравнивая и стабилизируя узел в трехмерном пространстве.
                                 </p>
                             </div>
                         </div>
                         <ul class="text-[10px] font-mono text-grany-muted space-y-1 border-t border-grany-border/60 pt-4">
-                            <li>• Расположите 3 палочки плоско по кругу со сдвигом.</li>
+                            <li>• Расположите палочки веером с небольшим сдвигом.</li>
                             <li>• Стяните центр треугольной петлей из муфты.</li>
-                            <li>• При выходе в 3D узел образует жесткую пирамиду.</li>
+                            <li>• Муфта затягивает все три палочки одновременно.</li>
                         </ul>
                     </div>
 
