@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ГРАНЬ — Интерьерный Дзен-Конструктор</title>
+    <link rel="icon" type="image/png" href="./icon.png">
     <!-- Премиальный шрифтовой дуэт: геометрический Outfit для заголовков и моноширинный JetBrains Mono для чертежных данных -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -578,14 +579,11 @@
                 window.addEventListener('resize', () => this.onWindowResize());
             }
 
-            // Автоматический расчет физических сдвигов осей по зеркальной симметрии
             calculatePhysicalShifts(nodes, edges) {
-                const nodeEdges = Array.from({ length: nodes.length }, () => []);
-                edges.forEach((edge, idx) => {
-                    nodeEdges[edge.n1].push(idx);
-                    nodeEdges[edge.n2].push(idx);
-                });
+                const r = ZenGridConfig.STICK_RADIUS;
+                const d = r * 1.05; // ~0.21 см для идеального зазора 0.42 см между осями
 
+                // 1. Находим среднюю плоскость X для зеркального отображения
                 let minX = Infinity, maxX = -Infinity;
                 nodes.forEach(n => {
                     if (n.x < minX) minX = n.x;
@@ -593,10 +591,11 @@
                 });
                 const xMid = (minX + maxX) / 2;
 
+                // 2. Находим зеркальные пары узлов и ребер
                 const symNodes = {};
                 for (let i = 0; i < nodes.length; i++) {
                     const ni = nodes[i];
-                    let bestJ = -1;
+                    let bestJ = i;
                     let minDist = Infinity;
                     for (let j = 0; j < nodes.length; j++) {
                         if (i === j) continue;
@@ -608,9 +607,7 @@
                             bestJ = j;
                         }
                     }
-                    if (minDist < 0.2) {
-                        symNodes[i] = bestJ;
-                    }
+                    symNodes[i] = (minDist < 0.2) ? bestJ : i;
                 }
 
                 const symEdges = {};
@@ -618,61 +615,80 @@
                     const edge1 = edges[e1];
                     const s1 = symNodes[edge1.n1];
                     const s2 = symNodes[edge1.n2];
-                    
                     let foundSym = e1;
                     for (let e2 = 0; e2 < edges.length; e2++) {
                         const edge2 = edges[e2];
                         if ((edge2.n1 === s1 && edge2.n2 === s2) || (edge2.n1 === s2 && edge2.n2 === s1)) {
                             foundSym = e2;
-                            break;
+                                break;
                         }
                     }
                     symEdges[e1] = foundSym;
                 }
 
-                const shifts = {};
-                const r = GranyConfig.STICK_RADIUS;
+                const symmetric_shifts = {};
 
-                for (let nIdx = 0; nIdx < nodes.length; nIdx++) {
-                    if (nodes[nIdx].x > xMid + 0.01) continue;
+                // 3. Вычисляем глобальный бесконфликтный сдвиг для каждого ребра
+                edges.forEach((edge, idx) => {
+                    const p1 = nodes[edge.n1];
+                    const p2 = nodes[edge.n2];
+                    
+                    // Направление палочки в пространстве
+                    const dir = new THREE.Vector3().subVectors(p2, p1).normalize();
+                    
+                    const ax = Math.abs(dir.x);
+                    const ay = Math.abs(dir.y);
+                    const az = Math.abs(dir.z);
 
-                    const connected = nodeEdges[nIdx];
-                    if (connected.length === 3) {
-                        const e0 = connected[0];
-                        const e1 = connected[1];
-                        const e2 = connected[2];
+                    // Базовый бесконфликтный вектор для трех ортогональных направлений
+                    let baseShift = new THREE.Vector3();
+                    if (ax >= ay && ax >= az) {
+                        baseShift.set(0, -d, d);     // Палочки вдоль X сдвигаем в плоскости Y-Z
+                    } else if (ay >= ax && ay >= az) {
+                        baseShift.set(d, 0, -d);     // Палочки вдоль Y сдвигаем в плоскости X-Z
+                    } else {
+                        baseShift.set(-d, d, 0);     // Палочки вдоль Z сдвигаем в плоскости X-Y
+                    }
 
-                        const u0 = this.getDirAwayFromNode(edges[e0], nodes, nIdx);
-                        const u1 = this.getDirAwayFromNode(edges[e1], nodes, nIdx);
-                        const u2 = this.getDirAwayFromNode(edges[e2], nodes, nIdx);
+                    // Проецируем сдвиг, чтобы он был строго перпендикулярен направлению этой палочки
+                    const projShift = baseShift.clone().sub(dir.clone().multiplyScalar(baseShift.dot(dir)));
+                    if (projShift.lengthSq() > 1e-6) {
+                        projShift.normalize().multiplyScalar(d);
+                    } else {
+                        projShift.copy(baseShift);
+                    }
 
-                        const n01 = new THREE.Vector3().crossVectors(u0, u1).normalize();
-                        const n12 = new THREE.Vector3().crossVectors(u1, u2).normalize();
-                        const n20 = new THREE.Vector3().crossVectors(u2, u0).normalize();
+                    // Присваиваем одинаковый сдвиг обоим концам палочки
+                    symmetric_shifts[`${idx}_${edge.n1}`] = projShift.clone();
+                    symmetric_shifts[`${idx}_${edge.n2}`] = projShift.clone();
+                });
 
-                        const offsetDist = r * 0.7;
-
-                        const shift0 = new THREE.Vector3().addScaledVector(n01, offsetDist).addScaledVector(n20, -offsetDist);
-                        const shift1 = new THREE.Vector3().addScaledVector(n12, offsetDist).addScaledVector(n01, -offsetDist);
-                        const shift2 = new THREE.Vector3().addScaledVector(n20, offsetDist).addScaledVector(n12, -offsetDist);
-
-                        shifts[`${e0}_${nIdx}`] = shift0;
-                        shifts[`${e1}_${nIdx}`] = shift1;
-                        shifts[`${e2}_${nIdx}`] = shift2;
-
-                        const symN = symNodes[nIdx];
-                        if (symN !== undefined && symN !== nIdx) {
-                            const symE0 = symEdges[e0];
-                            const symE1 = symEdges[e1];
-                            const symE2 = symEdges[e2];
-
-                            shifts[`${symE0}_${symN}`] = new THREE.Vector3(-shift0.x, shift0.y, shift0.z);
-                            shifts[`${symE1}_${symN}`] = new THREE.Vector3(-shift1.x, shift1.y, shift1.z);
-                            shifts[`${symE2}_${symN}`] = new THREE.Vector3(-shift2.x, shift2.y, shift2.z);
+                // 4. Зеркально синхронизируем сдвиги левой и правой половин
+                edges.forEach((edge, idx) => {
+                    const p1 = nodes[edge.n1];
+                    const p2 = nodes[edge.n2];
+                    
+                    // Если ребро лежит в левой половине, зеркально копируем его на правое ребро-партнер
+                    if (p1.x <= xMid + 0.01 && p2.x <= xMid + 0.01) {
+                        const sym_idx = symEdges[idx];
+                        if (sym_idx !== idx) {
+                            const sym_edge = edges[sym_idx];
+                            
+                            const s1 = symmetric_shifts[`${idx}_${edge.n1}`];
+                            const s2 = symmetric_shifts[`${idx}_${edge.n2}`];
+                            
+                            if (s1 && s2) {
+                                const mir1 = new THREE.Vector3(-s1.x, s1.y, s1.z);
+                                const mir2 = new THREE.Vector3(-s2.x, s2.y, s2.z);
+                                
+                                symmetric_shifts[`${sym_idx}_${sym_edge.n1}`] = mir1;
+                                symmetric_shifts[`${sym_idx}_${sym_edge.n2}`] = mir2;
+                            }
                         }
                     }
-                }
-                return shifts;
+                });
+
+                return symmetric_shifts;
             }
 
             getDirAwayFromNode(edge, nodes, nodeIdx) {
