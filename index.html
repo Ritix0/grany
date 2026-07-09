@@ -516,10 +516,12 @@
                             <h3 class="text-2xl font-bold uppercase">Набор «ГРАНЬ Стандарт»</h3>
                             <p class="text-xs text-stone-400 leading-relaxed">Универсальный базовый комплект для терапевтического моделирования, сборки подставок, фоторамок, полок и кинетических мобилей.</p>
                             <div class="border-t border-stone-800 pt-4 space-y-2 font-mono text-[11px] text-stone-400">
-                                <div class="flex justify-between"><span class="text-stone-500">Бамбук 4 мм (long / short):</span><span class="font-bold text-grany-bg">100 шт. (50 / 50)</span></div>
+                                <div class="flex justify-between"><span class="text-stone-500">Бамбук 4 мм (long / short / micro):</span><span class="font-bold text-grany-bg">100 шт. (50 / 40 / 10)</span></div>
+                                <p class="text-[10px] text-stone-500 font-mono mt-1 leading-tight">
+                                    * Допускается естественная погрешность ручной нарезки и шлифовки до ±2 мм (длина палочек может составлять 9.8 см и 6.8 см). Это никак не влияет на прочность сборки (вылет хвостиков за узлы составит ~6 мм вместо 8 мм).
+                                </p>
                                 <div class="flex justify-between"><span class="text-stone-500">Крепеж (силикон 1 см):</span><span class="font-bold text-grany-bg">200 шт.</span></div>
-                                <div class="flex justify-between"><span class="text-stone-500">Микро-прищепки 2.5 см:</span><span class="font-bold text-grany-bg">6 шт.</span></div>
-                                <div class="flex justify-between"><span class="text-stone-500">Руководство и схемы:</span><span class="font-bold text-grany-bg">Комплект карточек</span></div>
+                                <div class="flex justify-between"><span class="text-stone-500">Микро-прищепки 2.5 см:</span><span class="font-bold text-grany-bg">5 шт.</span></div>
                             </div>
                         </div>
                         <div class="space-y-4">
@@ -543,8 +545,7 @@
                             <div class="border-t border-stone-800 pt-4 space-y-2 font-mono text-[11px] text-stone-400">
                                 <div class="flex justify-between"><span class="text-stone-500">Дополнительные палочки:</span><span class="font-bold text-grany-bg">100 шт.</span></div>
                                 <div class="flex justify-between"><span class="text-stone-500">Дополнительные муфты:</span><span class="font-bold text-grany-bg">100 шт.</span></div>
-                                <div class="flex justify-between"><span class="text-stone-500">Формат упаковки:</span><span class="font-bold text-grany-bg">Крафт-конверт</span></div>
-                                <div class="flex justify-between"><span class="text-stone-500">Карточки и декор:</span><span class="font-bold text-stone-500">Не входят</span></div>
+                                <div class="flex justify-between"><span class="text-stone-500">Формат упаковки:</span><span class="font-bold text-grany-bg">Крафт-конверт</span></div> 
                             </div>
                         </div>
                         <div class="space-y-4">
@@ -585,11 +586,12 @@
          ============================================================================== -->
     <script>
         const ZenGridConfig = {
-            STICK_RADIUS: 0.2,   // Радиус бамбукового стержня (диаметр 3 мм)
+            STICK_RADIUS: 0.2,   // Радиус бамбукового стержня (диаметр 4 мм)
             JOINT_RADIUS: 0.55,   // Радиус силиконового узла
-            OVERHANG: 0.8,        // Вылет бамбуковой палочки за ось в см
+            OVERHANG: 0.8,        // Базовый вылет палочки за ось в см (6-8 мм с учетом шлифовки)
             L_LONG: 10.0,         // Полная длина длинной палочки в см
             L_SHORT: 7.0,         // Полная длина короткой палочки в см
+            L_MICRO: 2.0,         // Полная длина микро-палочки в см
             MAX_VALENCE: 3        // Максимальная валентность (связи)
         };
 
@@ -1396,7 +1398,8 @@
         function updateSpecsAndCompatibility(model) {
             const longQty = model.edges.filter(e => e.type === 'long').length;
             const shortQty = model.edges.filter(e => e.type === 'short').length;
-            const totalSticks = longQty + shortQty;
+            const microQty = model.edges.filter(e => e.type === 'micro').length; // Подсчет микро-палочек
+            const totalSticks = longQty + shortQty + microQty;
 
             // Преобразуем координаты в векторы для точного геометрического анализа
             const nodes = model.nodes.map(n => new THREE.Vector3(n.x, n.y, n.z));
@@ -1436,14 +1439,11 @@
                 }
 
                 if (isCollinear) {
-                    // нахлёст требует минимум 2 муфты по бокам стыка
                     siliconeQty += 2;
-                    // Если есть перпендикулярное ответвление, добавляется 3-я центральная муфта
                     if (connected.length > 2) {
                         siliconeQty += 1;
                     }
                 } else {
-                    // Обычный ортогональный узел
                     siliconeQty += 1;
                 }
             });
@@ -1459,6 +1459,10 @@
                     <span class="font-bold text-grany-text">${shortQty} шт.</span>
                 </div>
                 <div class="flex justify-between items-center py-2 border-b border-grany-border text-xs font-mono">
+                    <span class="text-grany-muted">Палочки 2 см (Micro):</span>
+                    <span class="font-bold text-grany-text">${microQty} шт.</span>
+                </div>
+                <div class="flex justify-between items-center py-2 border-b border-grany-border text-xs font-mono">
                     <span class="text-grany-muted">Силиконовые муфты:</span>
                     <span class="font-bold text-grany-text">${siliconeQty} шт.</span>
                 </div>
@@ -1469,12 +1473,13 @@
             `;
 
             const remLong = 50 - longQty; 
-            const remShort = 50 - shortQty;
+            const remShort = 40 - shortQty; // ОБНОВЛЕНО: Лимит коротких 40 шт.
+            const remMicro = 10 - microQty; // ОБНОВЛЕНО: Лимит микро 10 шт.
             const remSilicone = 200 - siliconeQty;
 
             document.getElementById('box-compatibility-text').innerHTML = `
                 Для сборки требуется <strong>${totalSticks}</strong> из 100 палочек и <strong>${siliconeQty}</strong> из 200 муфт. 
-                После сборки в коробке «ГРАНЬ Стандарт» останется еще <strong>${remLong}</strong> длинных, <strong>${remShort}</strong> коротких элементов и <strong>${remSilicone}</strong> резинок.
+                После сборки в коробке «ГРАНЬ Стандарт» останется еще <strong>${remLong}</strong> длинных, <strong>${remShort}</strong> коротких, <strong>${remMicro}</strong> микро-элементов и <strong>${remSilicone}</strong> резинок.
             `;
         }
 
