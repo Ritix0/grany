@@ -908,8 +908,40 @@
                 // Инициализируем массив для хранения парящих подписей нахлёстов
                 this.overlapLabels = {};
 
+                // Вспомогательная функция для расчета расстояния от точки до отрезка (палочки)
+                const getDistanceToSegment = (p, a, b) => {
+                    const ab = new THREE.Vector3().subVectors(b, a);
+                    const ap = new THREE.Vector3().subVectors(p, a);
+                    const bp = new THREE.Vector3().subVectors(p, b);
+                    const e = ap.dot(ab);
+                    if (e <= 0) return ap.length();
+                    const f = ab.lengthSq();
+                    if (e >= f) return bp.length();
+                    return new THREE.Vector3().crossVectors(ap, ab).length() / Math.sqrt(f);
+                };
+
                 // 2. ПОСТРОЕНИЕ ЭЛАСТИЧНЫХ СИЛИКОНОВЫХ МУФТ
                 nodes.forEach((node, idx) => {
+                    const connectedEdges = edges.filter(e => e.n1 === idx || e.n2 === idx).length;
+                    
+                    if (connectedEdges === 1) {
+                        let isTouchPoint = false;
+                        // Проверяем, касается ли этот свободный конец какой-то другой палочки
+                        edges.forEach(edge => {
+                            if (edge.n1 === idx || edge.n2 === idx) return; // Игнорируем родную палочку
+                            
+                            const a = nodes[edge.n1];
+                            const b = nodes[edge.n2];
+                            const dist = getDistanceToSegment(node, a, b);
+                            if (dist < 0.5) { // 0.5 см — радиус обнаружения соприкосновения
+                                isTouchPoint = true;
+                            }
+                        });
+                        
+                        // Если свободный конец ни к чему не прилипает — скрываем муфту
+                        if (!isTouchPoint) return;
+                    }
+                    
                     const col = collinearNodes[idx];
                     if (col) {
                         const group = new THREE.Group();
